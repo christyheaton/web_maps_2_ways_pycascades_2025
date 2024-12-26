@@ -1,12 +1,11 @@
 import streamlit as st
-import pandas as pd
 import altair as alt
 import geopandas as gpd
 import folium
 from streamlit_folium import st_folium
 
 def main():
-    st.title("Washington Hikes")
+    st.title("Let's Find Your Next Washington Hike")
     hikes_gdf = gpd.read_file("../data/hikes_wta_20241219.json")
 	
     hikes_gdf["Latitude"] = hikes_gdf.geometry.y
@@ -45,27 +44,10 @@ def main():
     st.map(data=filtered_df,
            latitude="Latitude",
            longitude="Longitude")
-		   
-    # Create a Folium Map
-    m = folium.Map(location=[filtered_df["Latitude"].mean(), filtered_df["Longitude"].mean()], zoom_start=10)
-
-    # Add points to the map with popups
-    for _, row in filtered_df.iterrows():
-        popup_text = f"""
-        <b>{row['title']}</b><br>
-        Mileage: {row['mileage']}<br>
-        Elevation Gain: {row['gain']} ft<br>
-        """
-        folium.Marker(
-            location=[row["Latitude"], row["Longitude"]],
-            popup=popup_text,
-#            icon=folium.Icon(color="green" if row["mileage"] == "Easy" else "red")
-        ).add_to(m)
 
     # Display the map in Streamlit
     st.subheader("Interactive Hike Map")
-    st_folium(m, width=700, height=500)
-
+    st_folium(filtered_df.explore(), width=700, height=500)
 
     # Hike ratings chart
     filtered_df["rounded_rating"] = filtered_df["rating"].round()
