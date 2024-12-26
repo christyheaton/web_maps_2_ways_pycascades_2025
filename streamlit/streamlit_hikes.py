@@ -6,7 +6,7 @@ from streamlit_folium import st_folium
 
 def main():
     st.title("Let's Find Your Next Washington Hike")
-    hikes_gdf = gpd.read_file("../data/hikes_wta_20241219.json")
+    hikes_gdf = gpd.read_file("hikes_wta_20241219.json")
 	
     hikes_gdf["Latitude"] = hikes_gdf.geometry.y
     hikes_gdf["Longitude"] = hikes_gdf.geometry.x
