@@ -1,4 +1,7 @@
 altair
 geopandas
+folium
+matplotlib
+mapclassify
 streamlit
 streamlit_folium
