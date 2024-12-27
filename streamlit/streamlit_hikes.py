@@ -5,48 +5,65 @@ import folium
 from streamlit_folium import st_folium
 
 def main():
-    st.title("Let's Find Your Next Washington Hike")
-    hikes_gdf = gpd.read_file("hikes_wta_20241219.json")
+
+    hikes_gdf = gpd.read_file("https://raw.githubusercontent.com/christyheaton/web_maps_2_ways_pycascades_2025/refs/heads/main/data/hikes_wta_20241219.json")
+    
+    hikes_gdf = hikes_gdf[["title", "region", "rating", "mileage", "gain", "geometry"]] 
 	
+	# Add latitude and longitude for Streamlit's map
     hikes_gdf["Latitude"] = hikes_gdf.geometry.y
     hikes_gdf["Longitude"] = hikes_gdf.geometry.x
 
-    st.subheader("Filters")
+	# Add Title
+    st.title("Let's Find Your Next Washington Hike")
 
+    # Sidebar filters
+    st.subheader("Filters")
     min_dist = int(hikes_gdf["mileage"].min())
     max_dist = 30
-    dist_slider = st.slider("Distance:", min_dist, max_dist, (min_dist, max_dist))
+    dist_slider = st.slider("Distance (miles):", min_dist, max_dist, (min_dist, max_dist))
 
     min_elev = int(hikes_gdf["gain"].min())
     max_elev = 4500
-    elev_slider = st.slider("Elevation Gain:", min_elev, max_elev, (min_elev, max_elev))
+    elev_slider = st.slider("Elevation Gain (ft):", min_elev, max_elev, (min_elev, max_elev))
 
-    pre_selected_region = "All"
-    if st.query_params.get("region"):
-        pre_selected_region = st.query_params.region
+    region_options = ["All"] + list(hikes_gdf["region"].dropna().unique())
+    region = st.selectbox("Region:", region_options)
 
-    region = st.selectbox("Region:", [pre_selected_region] + hikes_gdf["region"].tolist())
-    if region != pre_selected_region:
-        st.query_params.from_dict( { "region": region } )
+    # Filter hikes
+    filtered_df = hikes_gdf[
+        (hikes_gdf["mileage"] >= dist_slider[0]) &
+        (hikes_gdf["mileage"] <= dist_slider[1]) &
+        (hikes_gdf["gain"] >= elev_slider[0]) &
+        (hikes_gdf["gain"] <= elev_slider[1])
+    ]
 
-    # Filtered data
-    filtered_df = hikes_gdf[(hikes_gdf["mileage"] >= dist_slider[0]) &
-                           (hikes_gdf["mileage"] <= dist_slider[1]) &
-                           (hikes_gdf["gain"] >= elev_slider[0]) &
-                           (hikes_gdf["gain"] <= elev_slider[1])]
     if region != "All":
-        filtered_df = filtered_df[(filtered_df["region"] == region)]
+        filtered_df = filtered_df[filtered_df["region"] == region]
 
+    filtered_df = filtered_df.reset_index(drop=True)
+
+    # Display filtered hikes as a table
+#    filtered_df["geometry"] = filtered_df["geometry"].apply(lambda geom: geom.wkt)  # Convert geometry to WKT
     st.subheader("Hike Table")
     st.dataframe(filtered_df)
 
+    # Map visualization
     st.subheader("Hike Map")
-    st.map(data=filtered_df,
-           latitude="Latitude",
-           longitude="Longitude")
+    st.map(data=filtered_df, latitude="Latitude", longitude="Longitude")
 
-    # Display the map in Streamlit
+    # Folium Map
     st.subheader("Interactive Hike Map")
+    if not filtered_df.empty:
+        m = folium.Map(location=[47.5, -121.8], zoom_start=7)
+        for _, row in filtered_df.iterrows():
+            folium.Marker(
+                [row["Latitude"], row["Longitude"]],
+                popup=f"{row['title']} (Rating: {row['rating']})"
+            ).add_to(m)
+        st_folium(m, width=700, height=500)
+		
+	# Geopandas Explore Map
     st_folium(filtered_df.explore(), width=700, height=500)
 
     # Hike ratings chart
@@ -55,7 +72,6 @@ def main():
     rating_counts.columns = ["rating", "count"]
 
     st.subheader("Hike Ratings")
-
     bar_chart = alt.Chart(rating_counts).mark_bar(color="skyblue").encode(
         x=alt.X("rating:O", title="Rating"),
         y=alt.Y("count:Q", title="Count")
@@ -70,20 +86,13 @@ def main():
             random_row = filtered_df.sample()
             st.subheader("Randomly Selected Hike")
             st.table(random_row.T)
-            st.map(data=random_row,
-                   latitude="Latitude",
-                   longitude="Longitude")
-
-    # Highest rated hike selector
+    
+    # Highest-rated hike selector
     if not filtered_df.empty:
         if st.button("Select Highest Rated Hike"):
-            highest = filtered_df.loc[filtered_df["rating"].idxmax()].to_frame().T
+            highest = filtered_df.loc[filtered_df["rating"].idxmax()]
             st.subheader("Highest Rated Hike")
-            st.table(highest.T)
-            st.map(data=highest,
-                   latitude="Latitude",
-                   longitude="Longitude")
-
+            st.table(highest)
 
 if __name__ == "__main__":
     main()
