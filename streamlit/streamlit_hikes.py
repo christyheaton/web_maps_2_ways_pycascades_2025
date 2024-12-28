@@ -51,7 +51,16 @@ def main():
 
 	# Geopandas explore map
     st.subheader("st_folium GeoPandas Map")
-    st_folium(filtered_df.explore(), width=700, height=500)
+    m = filtered_df.explore(
+        tiles="CartoDB positron",
+        marker_kwds = {"radius": 4},
+        column="mileage",
+        cmap= "copper_r",
+        tooltip=True,
+        width=700,
+        height=500,
+    )
+    st_folium(m)
 
     # Hike ratings chart
     filtered_df["rounded_rating"] = filtered_df["rating"].round()
@@ -80,6 +89,7 @@ def main():
             highest = filtered_df.loc[filtered_df["rating"].idxmax()]
             st.subheader("Highest Rated Hike")
             st.table(highest)
+			
 
 
 if __name__ == "__main__":
