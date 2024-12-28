@@ -5,16 +5,14 @@ import folium
 from streamlit_folium import st_folium
 
 def main():
-
     hikes_gdf = gpd.read_file("https://raw.githubusercontent.com/christyheaton/web_maps_2_ways_pycascades_2025/refs/heads/main/data/hikes_wta_20241219.json")
-    
     hikes_gdf = hikes_gdf[["title", "region", "rating", "mileage", "gain", "geometry"]] 
 	
 	# Add latitude and longitude for Streamlit's map
     hikes_gdf["Latitude"] = hikes_gdf.geometry.y
     hikes_gdf["Longitude"] = hikes_gdf.geometry.x
 
-	# Add Title
+	# Add title
     st.title("Let's Find Your Next Washington Hike")
 
     # Sidebar filters
@@ -44,26 +42,15 @@ def main():
     filtered_df = filtered_df.reset_index(drop=True)
 
     # Display filtered hikes as a table
-#    filtered_df["geometry"] = filtered_df["geometry"].apply(lambda geom: geom.wkt)  # Convert geometry to WKT
     st.subheader("Hike Table")
     st.dataframe(filtered_df)
 
     # Map visualization
-    st.subheader("Hike Map")
+    st.subheader("Streamlit Map")
     st.map(data=filtered_df, latitude="Latitude", longitude="Longitude")
 
-    # Folium Map
-    st.subheader("Interactive Hike Map")
-    if not filtered_df.empty:
-        m = folium.Map(location=[47.5, -121.8], zoom_start=7)
-        for _, row in filtered_df.iterrows():
-            folium.Marker(
-                [row["Latitude"], row["Longitude"]],
-                popup=f"{row['title']} (Rating: {row['rating']})"
-            ).add_to(m)
-        st_folium(m, width=700, height=500)
-		
-	# Geopandas Explore Map
+	# Geopandas explore map
+    st.subheader("st_folium GeoPandas Map")
     st_folium(filtered_df.explore(), width=700, height=500)
 
     # Hike ratings chart
@@ -93,6 +80,7 @@ def main():
             highest = filtered_df.loc[filtered_df["rating"].idxmax()]
             st.subheader("Highest Rated Hike")
             st.table(highest)
+
 
 if __name__ == "__main__":
     main()
