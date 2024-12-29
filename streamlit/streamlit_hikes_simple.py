@@ -11,11 +11,9 @@ def main():
         marker_kwds = {"radius": 4},
         column="mileage",
         cmap= "copper_r",
-        tooltip=True,
-        width=700,
-        height=500,
+        tooltip=True
     )
-    st_folium(m)
+    st_folium(m, width=800, height=500)
 
 
 if __name__ == "__main__":
