@@ -5,7 +5,7 @@ import folium
 from streamlit_folium import st_folium
 
 def main():
-    hikes_gdf = gpd.read_file("https://raw.githubusercontent.com/christyheaton/web_maps_2_ways_pycascades_2025/refs/heads/main/data/hikes_wta_20241219.json")
+    hikes_gdf = gpd.read_file("./hikes_wta_20241219.json")
 
     hikes_gdf = hikes_gdf[["title", "region", "rating", "mileage", "gain", "geometry"]] 
 	
@@ -57,7 +57,7 @@ def main():
         marker_kwds = {"radius": 4},
         column="mileage",
         cmap= "copper_r",
-        tooltip=True
+        tooltip=["title", "mileage", "gain", "region"]
     )
     st_folium(m, width=800, height=500)
 
