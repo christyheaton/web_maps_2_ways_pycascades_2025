@@ -5,18 +5,17 @@ import folium
 from streamlit_folium import st_folium
 
 def main():
+    # Read data as GeoDataFrame
     hikes_gdf = gpd.read_file("./data/hikes_wta_20241219.json")
-
-    hikes_gdf = hikes_gdf[["title", "region", "rating", "mileage", "gain", "geometry"]] 
 	
-	# Add latitude and longitude for Streamlit's map
+	# Add latitude and longitude for Streamlit's st.map
     hikes_gdf["Latitude"] = hikes_gdf.geometry.y
     hikes_gdf["Longitude"] = hikes_gdf.geometry.x
 
 	# Add title
     st.title("Let's Find Your Next Washington Hike")
 
-    # Sidebar filters
+    # Filters
     st.subheader("Filters")
     min_dist = int(hikes_gdf["mileage"].min())
     max_dist = 30
@@ -44,7 +43,7 @@ def main():
 
     # Display filtered hikes as a table
     st.subheader("Hike Table")
-    st.dataframe(filtered_df)
+    st.dataframe(filtered_df[["title", "region", "rating", "mileage", "gain", "geometry"]] )
 
     # Map visualization
     st.subheader("Streamlit Map")
@@ -81,14 +80,19 @@ def main():
             random_row = filtered_df.sample()
             st.subheader("Randomly Selected Hike")
             st.table(random_row.T)
+            st.map(data=random_row,
+                latitude="Latitude",
+                longitude="Longitude")
     
     # Highest-rated hike selector
     if not filtered_df.empty:
         if st.button("Select Highest Rated Hike"):
-            highest = filtered_df.loc[filtered_df["rating"].idxmax()]
+            highest = filtered_df.loc[filtered_df["rating"].idxmax()].to_frame().T
             st.subheader("Highest Rated Hike")
-            st.table(highest)
-			
+            st.table(highest.T)
+            st.map(data=highest,
+                latitude="Latitude",
+                longitude="Longitude")
 
 
 if __name__ == "__main__":
