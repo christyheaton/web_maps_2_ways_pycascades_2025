@@ -5,7 +5,7 @@ import folium
 from streamlit_folium import st_folium
 
 def main():
-    hikes_gdf = gpd.read_file("./hikes_wta_20241219.json")
+    hikes_gdf = gpd.read_file("./data/hikes_wta_20241219.json")
 
     hikes_gdf = hikes_gdf[["title", "region", "rating", "mileage", "gain", "geometry"]] 
 	
