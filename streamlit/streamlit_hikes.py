@@ -12,6 +12,9 @@ def main():
     hikes_gdf["Latitude"] = hikes_gdf.geometry.y
     hikes_gdf["Longitude"] = hikes_gdf.geometry.x
 
+    # Create primary and sub region columns
+    hikes_gdf[["primary_region", "sub_region"]] = hikes_gdf["region"].str.split(" > ", expand=True)
+
 	# Add title
     st.title("Let's Find Your Next Washington Hike")
 
@@ -25,8 +28,8 @@ def main():
     max_elev = 4500
     elev_slider = st.slider("Elevation Gain (ft):", min_elev, max_elev, (min_elev, max_elev))
 
-    region_options = ["All"] + list(hikes_gdf["region"].dropna().unique())
-    region = st.selectbox("Region:", region_options)
+    region_options = ["All"] + list(hikes_gdf["primary_region"].dropna().unique())
+    primary_region = st.selectbox("Region:", region_options)
 
     # Filter hikes
     filtered_df = hikes_gdf[
@@ -36,8 +39,8 @@ def main():
         (hikes_gdf["gain"] <= elev_slider[1])
     ]
 
-    if region != "All":
-        filtered_df = filtered_df[filtered_df["region"] == region]
+    if primary_region != "All":
+        filtered_df = filtered_df[filtered_df["primary_region"] == primary_region]
 
     filtered_df = filtered_df.reset_index(drop=True)
 
