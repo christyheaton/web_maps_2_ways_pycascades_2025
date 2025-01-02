@@ -13,7 +13,9 @@ def main():
     hikes_gdf["Longitude"] = hikes_gdf.geometry.x
 
     # Create primary and sub region columns
-    hikes_gdf[["primary_region", "sub_region"]] = hikes_gdf["region"].str.split(" > ", expand=True)
+    hikes_gdf[
+        ["primary_region", "sub_region"]
+    ] = hikes_gdf["region"].str.split(" > ", expand=True)
 
 	# Add title
     st.title("Let's Find Your Next Washington Hike")
@@ -22,13 +24,19 @@ def main():
     st.subheader("Filters")
     min_dist = int(hikes_gdf["mileage"].min())
     max_dist = 30
-    dist_slider = st.slider("Distance (miles):", min_dist, max_dist, (min_dist, max_dist))
+    dist_slider = st.slider(
+        "Distance (miles):", min_dist, max_dist, (min_dist, max_dist)
+    )
 
     min_elev = int(hikes_gdf["gain"].min())
     max_elev = 4500
-    elev_slider = st.slider("Elevation Gain (ft):", min_elev, max_elev, (min_elev, max_elev))
+    elev_slider = st.slider(
+        "Elevation Gain (ft):", min_elev, max_elev, (min_elev, max_elev)
+    )
 
-    region_options = ["All"] + list(hikes_gdf["primary_region"].dropna().unique())
+    region_options = ["All"] + list(
+        hikes_gdf["primary_region"].dropna().unique()
+    )
     primary_region = st.selectbox("Region:", region_options)
 
     # Filter hikes
@@ -46,11 +54,15 @@ def main():
 
     # Display filtered hikes as a table
     st.subheader("Hike Table")
-    st.dataframe(filtered_df[["title", "region", "rating", "mileage", "gain", "geometry"]] )
+    st.dataframe(filtered_df[
+        ["title", "region", "rating", "mileage", "gain", "geometry"]
+    ])
 
     # Map visualization
     st.subheader("Streamlit Map")
-    st.map(data=filtered_df, latitude="Latitude", longitude="Longitude")
+    st.map(
+        data=filtered_df, latitude="Latitude", longitude="Longitude"
+    )
 
 	# Geopandas explore map
     st.subheader("st_folium GeoPandas Map")

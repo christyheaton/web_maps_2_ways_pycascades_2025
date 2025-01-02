@@ -7,3 +7,4 @@ st.write("Let's create a table:")
 df = pd.DataFrame(np.random.randint(0, 5, 5))
 st.write(df)
 st.scatter_chart(df)
+
