@@ -94,7 +94,7 @@ def main():
         if st.button("Select Random Hike"):
             random_row = filtered_df.sample()
             st.subheader("Randomly Selected Hike")
-            st.table(random_row.T)
+            st.table(random_row[["title", "description", "mileage", "gain", "region", "passes", "rating", "url", "Latitude", "Longitude"]].T)
             st.map(data=random_row,
                 latitude="Latitude",
                 longitude="Longitude")
@@ -104,7 +104,7 @@ def main():
         if st.button("Select Highest Rated Hike"):
             highest = filtered_df.loc[filtered_df["rating"].idxmax()].to_frame().T
             st.subheader("Highest Rated Hike")
-            st.table(highest.T)
+            st.table(highest[["title", "description", "mileage", "gain", "region", "passes", "rating", "url", "Latitude", "Longitude"]].T)
             st.map(data=highest,
                 latitude="Latitude",
                 longitude="Longitude")
