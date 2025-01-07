@@ -46,7 +46,7 @@ primary_region = st.sidebar.selectbox(
 )
 
 # Filter hikes
-filtered_df = hikes_gdf[
+filtered_gdf = hikes_gdf[
     (hikes_gdf["mileage"] >= dist_slider[0])
     & (hikes_gdf["mileage"] <= dist_slider[1])
     & (hikes_gdf["gain"] >= elev_slider[0])
@@ -54,15 +54,15 @@ filtered_df = hikes_gdf[
 ]
 
 if primary_region != "All":
-    filtered_df = filtered_df[
-        filtered_df["primary_region"] == primary_region
+    filtered_gdf = filtered_gdf[
+        filtered_gdf["primary_region"] == primary_region
     ]
-    filtered_df = filtered_df.reset_index(drop=True)
+    filtered_gdf = filtered_gdf.reset_index(drop=True)
 
 # Display filtered hikes as a table
 st.subheader("Hike Table")
 st.dataframe(
-    filtered_df[
+    filtered_gdf[
         [
             "title",
             "region",
@@ -77,14 +77,14 @@ st.dataframe(
 # Streamlit map
 st.subheader("Streamlit Map")
 st.map(
-    data=filtered_df,
+    data=filtered_gdf,
     latitude="Latitude",
     longitude="Longitude",
 )
 
 # Geopandas explore map
 st.subheader("st_folium GeoPandas Map")
-m = filtered_df.explore(
+m = filtered_gdf.explore(
     tiles="CartoDB positron",
     marker_kwds={"radius": 4},
     column="mileage",
@@ -94,11 +94,11 @@ m = filtered_df.explore(
 st_folium(m, width=800, height=500)
 
 # Hike ratings chart
-filtered_df["rounded_rating"] = filtered_df[
+filtered_gdf["rounded_rating"] = filtered_gdf[
     "rating"
 ].round()
 rating_counts = (
-    filtered_df["rounded_rating"]
+    filtered_gdf["rounded_rating"]
     .value_counts()
     .reset_index()
 )
@@ -114,14 +114,14 @@ bar_chart = (
     )
 )
 st.altair_chart(bar_chart, use_container_width=True)
-average_rating = f"{filtered_df['rating'].mean():.1f}"
+average_rating = f"{filtered_gdf['rating'].mean():.1f}"
 st.text(f"Average rating: {average_rating}")
 
 # Highest-rated hike selector
-if not filtered_df.empty:
+if not filtered_gdf.empty:
     if st.button("Select Highest Rated Hike"):
         highest = (
-            filtered_df.loc[filtered_df["rating"].idxmax()]
+            filtered_gdf.loc[filtered_gdf["rating"].idxmax()]
             .to_frame()
             .T
         )
