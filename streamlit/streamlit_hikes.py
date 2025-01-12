@@ -59,7 +59,6 @@ if primary_region != "All":
     filtered_gdf = filtered_gdf.reset_index(drop=True)
 
 # Geopandas explore map
-st.subheader("GeoPandas Map")
 m = filtered_gdf.explore(
     tiles="CartoDB positron",
     marker_kwds={"radius": 4},
@@ -68,11 +67,3 @@ m = filtered_gdf.explore(
     tooltip=["title", "mileage", "gain", "region"],
 )
 st_folium(m, width=800, height=500)
-
-# Streamlit map
-st.subheader("Streamlit Map")
-st.map(
-    data=filtered_gdf,
-    latitude="Latitude",
-    longitude="Longitude",
-)
