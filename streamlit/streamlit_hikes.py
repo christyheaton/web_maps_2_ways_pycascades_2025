@@ -1,6 +1,5 @@
-import streamlit as st
-import altair as alt
 import geopandas as gpd
+import streamlit as st
 from streamlit_folium import st_folium
 
 # Read data as GeoDataFrame
@@ -59,31 +58,8 @@ if primary_region != "All":
     ]
     filtered_gdf = filtered_gdf.reset_index(drop=True)
 
-# Display filtered hikes as a table
-st.subheader("Hike Table")
-st.dataframe(
-    filtered_gdf[
-        [
-            "title",
-            "region",
-            "rating",
-            "mileage",
-            "gain",
-            "geometry",
-        ]
-    ]
-)
-
-# Streamlit map
-st.subheader("Streamlit Map")
-st.map(
-    data=filtered_gdf,
-    latitude="Latitude",
-    longitude="Longitude",
-)
-
 # Geopandas explore map
-st.subheader("st_folium GeoPandas Map")
+st.subheader("GeoPandas Map")
 m = filtered_gdf.explore(
     tiles="CartoDB positron",
     marker_kwds={"radius": 4},
@@ -93,57 +69,10 @@ m = filtered_gdf.explore(
 )
 st_folium(m, width=800, height=500)
 
-# Hike ratings chart
-filtered_gdf["rounded_rating"] = filtered_gdf[
-    "rating"
-].round()
-rating_counts = (
-    filtered_gdf["rounded_rating"]
-    .value_counts()
-    .reset_index()
+# Streamlit map
+st.subheader("Streamlit Map")
+st.map(
+    data=filtered_gdf,
+    latitude="Latitude",
+    longitude="Longitude",
 )
-rating_counts.columns = ["rating", "count"]
-
-st.subheader("Hike Ratings")
-bar_chart = (
-    alt.Chart(rating_counts)
-    .mark_bar(color="skyblue")
-    .encode(
-        x=alt.X("rating:O", title="Rating"),
-        y=alt.Y("count:Q", title="Count"),
-    )
-)
-st.altair_chart(bar_chart, use_container_width=True)
-average_rating = f"{filtered_gdf['rating'].mean():.1f}"
-st.text(f"Average rating: {average_rating}")
-
-# Highest-rated hike selector
-if not filtered_gdf.empty:
-    if st.button("Select Highest Rated Hike"):
-        highest = (
-            filtered_gdf.loc[filtered_gdf["rating"].idxmax()]
-            .to_frame()
-            .T
-        )
-        st.subheader("Highest Rated Hike")
-        st.table(
-            highest[
-                [
-                    "title",
-                    "description",
-                    "mileage",
-                    "gain",
-                    "region",
-                    "passes",
-                    "rating",
-                    "url",
-                    "Latitude",
-                    "Longitude",
-                ]
-            ].T
-        )
-        st.map(
-            data=highest,
-            latitude="Latitude",
-            longitude="Longitude",
-        )
