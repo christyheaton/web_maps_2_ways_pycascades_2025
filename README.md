@@ -13,6 +13,7 @@ Find the slides [here](https://docs.google.com/presentation/d/10L9KH3kkFY93qF7rV
 
 *Socials:*
 - Follow me on Mastadon: https://mas.to/@christyheaton
+- Connect on LinkedIn: https://www.linkedin.com/in/christyheaton/
 - Check out my website: https://christyheaton.github.io/
 
 *Groups I'm involved in:*
